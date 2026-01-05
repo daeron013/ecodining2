@@ -82,8 +82,8 @@ async def analyze_plate_with_gemini(before_img: np.ndarray, after_img: np.ndarra
                     "name": "food item name",
                     "initial_portion": "description of initial amount (e.g., 'full serving', '6 oz')",
                     "remaining_portion": "description of remaining amount",
-                    "waste_percentage": <number between 0-100>,
-                    "estimated_weight_oz": <estimated weight in ounces>,
+                    "waste_percentage": <number between 0-100 representing how much was LEFT/WASTED, not eaten>,
+                    "estimated_weight_oz": <estimated weight of WASTED food in ounces>,
                     "category": "entree/side/vegetable/dessert/beverage"
                 }
             ],
@@ -91,14 +91,15 @@ async def analyze_plate_with_gemini(before_img: np.ndarray, after_img: np.ndarra
             "suggestions": ["actionable tip 1", "actionable tip 2"]
         }
         
-        Be specific about each distinct food item you can identify. For waste_percentage:
-        - 0-10%: Almost everything eaten
-        - 10-25%: Small amount left
-        - 25-50%: Moderate amount left
-        - 50-75%: Significant amount left
-        - 75-100%: Most/all food left
+        IMPORTANT: waste_percentage should represent the percentage of food that was LEFT ON THE PLATE (wasted), 
+        not the percentage that was eaten. For example:
+        - If someone ate everything: waste_percentage = 0-10%
+        - If someone ate most of it: waste_percentage = 10-25%
+        - If someone ate half: waste_percentage = 40-60%
+        - If someone barely touched it: waste_percentage = 75-100%
         
-        Focus on accuracy and be realistic about portion sizes typical in college dining halls."""
+        Be specific about each distinct food item you can identify. Focus on accuracy and be realistic 
+        about portion sizes typical in college dining halls."""
         
         # Generate analysis
         response = gemini_model.generate_content([prompt, before_pil, after_pil])
@@ -136,13 +137,13 @@ def use_fallback_detection(before_img: np.ndarray, after_img: np.ndarray) -> Dic
             {
                 "name": "Mixed Plate",
                 "initial_portion": "Full serving",
-                "remaining_portion": f"{int((1 - waste_pct) * 100)}% remaining",
+                "remaining_portion": f"{int(waste_pct * 100)}% remaining",
                 "waste_percentage": round(waste_pct * 100, 1),
                 "estimated_weight_oz": round(8 * waste_pct, 2),
                 "category": "mixed"
             }
         ],
-        "overall_assessment": f"Approximately {int((1 - waste_pct) * 100)}% of food was consumed.",
+        "overall_assessment": f"Approximately {int((1 - waste_pct) * 100)}% of food was consumed, {int(waste_pct * 100)}% wasted.",
         "suggestions": generate_tips_from_waste(waste_pct)
     }
 
@@ -170,7 +171,9 @@ def estimate_waste_percentage_cv(before_img: np.ndarray, after_img: np.ndarray) 
         if before_area == 0:
             return 0.0
         
-        waste_percentage = (after_area) / before_area
+        # Waste is what remains AFTER eating (after_area)
+        # NOT what was consumed (before_area - after_area)
+        waste_percentage = after_area / before_area
         waste_percentage = max(0.0, min(1.0, waste_percentage))
         
         return waste_percentage

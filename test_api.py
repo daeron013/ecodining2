@@ -16,32 +16,33 @@ def create_test_images():
     """Create simple test images if none exist."""
     print("Creating test images...")
     
-    # Create a "before" image with food
+    # Create a "before" image with FULL plate of food
     before_img = Image.new('RGB', (800, 800), color='white')
     draw = ImageDraw.Draw(before_img)
     
     # Draw a plate (circle)
     draw.ellipse([100, 100, 700, 700], fill='lightgray', outline='gray', width=5)
     
-    # Draw some "food" items
-    draw.ellipse([200, 250, 350, 400], fill='brown', outline='darkbrown', width=3)  # Chicken
-    draw.ellipse([450, 250, 600, 400], fill='green', outline='darkgreen', width=3)  # Broccoli
-    draw.rectangle([250, 450, 550, 550], fill='yellow', outline='orange', width=3)  # Mac & Cheese
+    # Draw FULL portions of food
+    draw.ellipse([200, 250, 400, 450], fill='brown', outline='darkbrown', width=3)  # Full chicken portion
+    draw.ellipse([420, 250, 620, 450], fill='green', outline='darkgreen', width=3)  # Full broccoli portion
+    draw.rectangle([200, 480, 600, 600], fill='yellow', outline='orange', width=3)  # Full Mac & Cheese
     
     # Save before image
     before_img.save('/tmp/test_before.jpg')
     
-    # Create an "after" image with some food remaining
+    # Create an "after" image with SMALL amounts of food remaining (waste)
+    # Most food should be GONE (eaten), only small amounts remain
     after_img = Image.new('RGB', (800, 800), color='white')
     draw = ImageDraw.Draw(after_img)
     
     # Draw the same plate
     draw.ellipse([100, 100, 700, 700], fill='lightgray', outline='gray', width=5)
     
-    # Draw remaining food (less than before)
-    draw.ellipse([270, 320, 330, 380], fill='brown', outline='darkbrown', width=2)  # Small chicken
-    draw.ellipse([480, 290, 570, 360], fill='green', outline='darkgreen', width=2)  # Half broccoli
-    # Mac & Cheese mostly eaten
+    # Draw SMALL remaining food portions (about 15-20% left)
+    draw.ellipse([280, 320, 340, 380], fill='brown', outline='darkbrown', width=2)  # Tiny bit of chicken left
+    draw.ellipse([500, 310, 560, 370], fill='green', outline='darkgreen', width=2)  # Small broccoli piece
+    draw.rectangle([350, 520, 450, 560], fill='yellow', outline='orange', width=2)  # Small mac & cheese left
     
     # Save after image
     after_img.save('/tmp/test_after.jpg')
