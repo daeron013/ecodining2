@@ -153,26 +153,36 @@ def estimate_waste_percentage_cv(before_img: np.ndarray, after_img: np.ndarray) 
     Estimate waste percentage using computer vision (fallback method).
     """
     try:
-        # Convert to HSV for better food detection
-        before_hsv = cv2.cvtColor(before_img, cv2.COLOR_BGR2HSV)
-        after_hsv = cv2.cvtColor(after_img, cv2.COLOR_BGR2HSV)
+        # Resize images to same size if needed
+        h, w = before_img.shape[:2]
+        after_img = cv2.resize(after_img, (w, h))
         
-        # Create masks for food-like colors (excluding plate/background)
-        lower_food = np.array([0, 20, 20])
-        upper_food = np.array([180, 255, 255])
+        # Convert to grayscale for simpler comparison
+        before_gray = cv2.cvtColor(before_img, cv2.COLOR_BGR2GRAY)
+        after_gray = cv2.cvtColor(after_img, cv2.COLOR_BGR2GRAY)
         
-        before_mask = cv2.inRange(before_hsv, lower_food, upper_food)
-        after_mask = cv2.inRange(after_hsv, lower_food, upper_food)
+        # Use adaptive thresholding to detect food (dark areas on light plate)
+        # Food typically has more texture/variation than plate
+        before_blur = cv2.GaussianBlur(before_gray, (5, 5), 0)
+        after_blur = cv2.GaussianBlur(after_gray, (5, 5), 0)
         
-        # Calculate food area
-        before_area = np.sum(before_mask > 0)
-        after_area = np.sum(after_mask > 0)
+        # Detect edges/texture (food has more edges than smooth plate)
+        before_edges = cv2.Canny(before_blur, 30, 100)
+        after_edges = cv2.Canny(after_blur, 30, 100)
+        
+        # Dilate to connect nearby edges
+        kernel = np.ones((5, 5), np.uint8)
+        before_edges = cv2.dilate(before_edges, kernel, iterations=2)
+        after_edges = cv2.dilate(after_edges, kernel, iterations=2)
+        
+        # Calculate food area based on edges (food has texture, plate is smooth)
+        before_area = np.sum(before_edges > 0)
+        after_area = np.sum(after_edges > 0)
         
         if before_area == 0:
             return 0.0
         
-        # Waste is what remains AFTER eating (after_area)
-        # NOT what was consumed (before_area - after_area)
+        # Waste is what remains AFTER eating (after_area) relative to original (before_area)
         waste_percentage = after_area / before_area
         waste_percentage = max(0.0, min(1.0, waste_percentage))
         

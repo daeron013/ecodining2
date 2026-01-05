@@ -20,34 +20,67 @@ def create_test_images():
     before_img = Image.new('RGB', (800, 800), color='white')
     draw = ImageDraw.Draw(before_img)
     
-    # Draw a plate (circle)
-    draw.ellipse([100, 100, 700, 700], fill='lightgray', outline='gray', width=5)
+    # Draw a plate (circle) - smooth background
+    draw.ellipse([100, 100, 700, 700], fill='white', outline='darkgray', width=8)
     
-    # Draw FULL portions of food
-    draw.ellipse([200, 250, 400, 450], fill='brown', outline='darkbrown', width=3)  # Full chicken portion
-    draw.ellipse([420, 250, 620, 450], fill='green', outline='darkgreen', width=3)  # Full broccoli portion
-    draw.rectangle([200, 480, 600, 600], fill='yellow', outline='orange', width=3)  # Full Mac & Cheese
+    # Draw FULL portions of food with texture (multiple shapes to simulate texture)
+    # Chicken pieces - multiple circles for texture
+    for i in range(15):
+        x_offset = 200 + (i % 5) * 35
+        y_offset = 250 + (i // 5) * 35
+        size = 30 + (i % 3) * 5
+        draw.ellipse([x_offset, y_offset, x_offset + size, y_offset + size], 
+                     fill='saddlebrown', outline='darkred', width=2)
+    
+    # Broccoli florets - multiple irregular shapes
+    for i in range(12):
+        x_offset = 440 + (i % 4) * 40
+        y_offset = 260 + (i // 4) * 45
+        size = 25 + (i % 4) * 8
+        draw.ellipse([x_offset, y_offset, x_offset + size, y_offset + size], 
+                     fill='darkgreen', outline='forestgreen', width=2)
+        # Add smaller circles for broccoli texture
+        draw.ellipse([x_offset + 5, y_offset + 5, x_offset + size - 10, y_offset + size - 10], 
+                     fill='green', outline='darkgreen', width=1)
+    
+    # Mac & Cheese - multiple small rectangles for noodle texture
+    for i in range(20):
+        x_offset = 220 + (i % 10) * 35
+        y_offset = 490 + (i // 10) * 40
+        draw.rectangle([x_offset, y_offset, x_offset + 25, y_offset + 15], 
+                      fill='gold', outline='orange', width=1)
     
     # Save before image
     before_img.save('/tmp/test_before.jpg')
     
     # Create an "after" image with SMALL amounts of food remaining (waste)
-    # Most food should be GONE (eaten), only small amounts remain
+    # Most food should be GONE (eaten), only small amounts remain (about 10-15%)
     after_img = Image.new('RGB', (800, 800), color='white')
     draw = ImageDraw.Draw(after_img)
     
     # Draw the same plate
-    draw.ellipse([100, 100, 700, 700], fill='lightgray', outline='gray', width=5)
+    draw.ellipse([100, 100, 700, 700], fill='white', outline='darkgray', width=8)
     
-    # Draw SMALL remaining food portions (about 15-20% left)
-    draw.ellipse([280, 320, 340, 380], fill='brown', outline='darkbrown', width=2)  # Tiny bit of chicken left
-    draw.ellipse([500, 310, 560, 370], fill='green', outline='darkgreen', width=2)  # Small broccoli piece
-    draw.rectangle([350, 520, 450, 560], fill='yellow', outline='orange', width=2)  # Small mac & cheese left
+    # Draw SMALL remaining food portions (simulating 10-15% waste)
+    # Just 2 small chicken pieces left
+    draw.ellipse([280, 310, 310, 340], fill='saddlebrown', outline='darkred', width=2)
+    draw.ellipse([295, 345, 320, 370], fill='saddlebrown', outline='darkred', width=2)
+    
+    # Just 2 small broccoli florets
+    draw.ellipse([490, 300, 515, 325], fill='darkgreen', outline='forestgreen', width=2)
+    draw.ellipse([505, 330, 530, 355], fill='green', outline='darkgreen', width=1)
+    
+    # Just 3 small mac & cheese pieces
+    draw.rectangle([360, 515, 380, 530], fill='gold', outline='orange', width=1)
+    draw.rectangle([385, 520, 405, 535], fill='gold', outline='orange', width=1)
+    draw.rectangle([372, 540, 392, 555], fill='gold', outline='orange', width=1)
     
     # Save after image
     after_img.save('/tmp/test_after.jpg')
     
     print("✓ Test images created at /tmp/test_before.jpg and /tmp/test_after.jpg")
+    print("  Before image: Full plate with ~60-70 food pieces")
+    print("  After image: Mostly clean plate with ~7 small pieces remaining (~10-15% waste)")
     return '/tmp/test_before.jpg', '/tmp/test_after.jpg'
 
 
