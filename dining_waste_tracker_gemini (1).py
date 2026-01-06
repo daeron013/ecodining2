@@ -137,13 +137,13 @@ def use_fallback_detection(before_img: np.ndarray, after_img: np.ndarray) -> Dic
             {
                 "name": "Mixed Plate",
                 "initial_portion": "Full serving",
-                "remaining_portion": f"{int(waste_pct * 100)}% remaining",
-                "waste_percentage": round(waste_pct * 100, 1),
-                "estimated_weight_oz": round(8 * waste_pct, 2),
+                "remaining_portion": f"{int((1 - waste_pct) * 100)}% remaining",
+                "waste_percentage": round((1 - waste_pct) * 100, 1),
+                "estimated_weight_oz": round(8 * (1 - waste_pct), 2),
                 "category": "mixed"
             }
         ],
-        "overall_assessment": f"Approximately {int((1 - waste_pct) * 100)}% of food was consumed, {int(waste_pct * 100)}% wasted.",
+        "overall_assessment": f"Approximately {int((waste_pct) * 100)}% of food was consumed, {int((1- waste_pct) * 100)}% wasted.",
         "suggestions": generate_tips_from_waste(waste_pct)
     }
 
