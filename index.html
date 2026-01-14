@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dining Waste Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="page active">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="logo">
+                    <h1>🍽️ Dining Waste Tracker</h1>
+                    <p>Track your impact, save the planet</p>
+                </div>
+                
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="userId">Student ID / Staff ID</label>
+                        <input type="text" id="userId" required placeholder="Enter your ID">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="schoolId">School</label>
+                        <input type="text" id="schoolId" required placeholder="Enter school name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="userType">I am a:</label>
+                        <select id="userType" required>
+                            <option value="student">Student</option>
+                            <option value="staff">Dining Hall Staff</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Sign In</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App (Student View) -->
+    <div id="mainApp" class="page">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <span class="logo-icon">🍽️</span>
+                    <span class="brand-name">Waste Tracker</span>
+                </div>
+                <div class="nav-user">
+                    <span id="navUserName"></span>
+                    <button id="logoutBtn" class="btn btn-small">Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-btn active" data-tab="home">
+                <span class="tab-icon">📸</span>
+                <span>Scan</span>
+            </button>
+            <button class="tab-btn" data-tab="history">
+                <span class="tab-icon">📊</span>
+                <span>My History</span>
+            </button>
+        </div>
+
+        <!-- Home/Scan Tab -->
+        <div id="homeTab" class="tab-content active">
+            <div class="container">
+                <div class="scan-header">
+                    <h2>Scan Your Plate</h2>
+                    <p>Upload before and after photos to track your waste</p>
+                </div>
+
+                <div class="scan-section">
+                    <div class="upload-grid">
+                        <div class="upload-card" id="beforeCard">
+                            <input type="file" id="beforeImageInput" accept="image/*" style="display: none;">
+                            <div class="upload-placeholder">
+                                <div class="upload-icon">📸</div>
+                                <h3>Before Eating</h3>
+                                <p>Click to upload</p>
+                            </div>
+                        </div>
+
+                        <div class="upload-card" id="afterCard">
+                            <input type="file" id="afterImageInput" accept="image/*" style="display: none;">
+                            <div class="upload-placeholder">
+                                <div class="upload-icon">📸</div>
+                                <h3>After Eating</h3>
+                                <p>Click to upload</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="scan-options">
+                        <div class="option-group">
+                            <label for="mealType">Meal Type</label>
+                            <select id="mealType">
+                                <option value="breakfast">Breakfast</option>
+                                <option value="lunch">Lunch</option>
+                                <option value="dinner">Dinner</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="option-group">
+                            <label for="scanDate">Date</label>
+                            <input type="date" id="scanDate">
+                        </div>
+                    </div>
+
+                    <button id="scanBtn" class="btn btn-primary btn-large" disabled>
+                        Analyze Waste
+                    </button>
+
+                    <div id="scanLoading" class="loading-state" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>Analyzing your plate...</p>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div id="scanResults" class="results-section" style="display: none;">
+                    <div class="results-header">
+                        <h3>Scan Results</h3>
+                        <div class="results-summary">
+                            <div class="summary-badge">
+                                <span class="badge-value" id="totalWaste">0%</span>
+                                <span class="badge-label">Avg Waste</span>
+                            </div>
+                            <div class="summary-badge">
+                                <span class="badge-value" id="pointsEarned">0</span>
+                                <span class="badge-label">Points</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="food-items-list" id="foodItemsList"></div>
+
+                    <div class="impact-summary">
+                        <h4>Environmental Impact</h4>
+                        <div class="impact-grid" id="impactGrid"></div>
+                    </div>
+
+                    <div class="tips-section" id="tipsSection"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Tab -->
+        <div id="historyTab" class="tab-content">
+            <div class="container">
+                <div class="history-header">
+                    <h2>My Waste History</h2>
+                    <div class="stats-summary">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalScans">0</div>
+                            <div class="stat-label">Total Scans</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="avgWasteHistory">0%</div>
+                            <div class="stat-label">Avg Waste</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalPoints">0</div>
+                            <div class="stat-label">Total Points</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top 5 Most/Least Wasted -->
+                <div class="top-foods-section">
+                    <div class="top-foods-card">
+                        <h3>🔴 Top 5 Most Wasted</h3>
+                        <div id="mostWastedList" class="food-bars-list"></div>
+                    </div>
+                    <div class="top-foods-card">
+                        <h3>🟢 Top 5 Least Wasted</h3>
+                        <div id="leastWastedList" class="food-bars-list"></div>
+                    </div>
+                </div>
+
+                <!-- Past Scans -->
+                <div class="past-scans-section">
+                    <h3>Previous Scans</h3>
+                    <div id="pastScansList" class="scans-grid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Staff View -->
+    <div id="staffApp" class="page">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <span class="logo-icon">🍽️</span>
+                    <span class="brand-name">Waste Tracker - Staff Portal</span>
+                </div>
+                <div class="nav-user">
+                    <span id="staffNavUserName"></span>
+                    <button id="staffLogoutBtn" class="btn btn-small">Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+            <div class="staff-header">
+                <h2>School Waste Analytics</h2>
+                <p id="schoolName"></p>
+            </div>
+
+            <!-- Date Filter -->
+            <div class="filter-section">
+                <div class="filter-group">
+                    <label for="staffDateFilter">Date</label>
+                    <input type="date" id="staffDateFilter">
+                </div>
+                <button id="refreshDataBtn" class="btn btn-secondary">Refresh Data</button>
+            </div>
+
+            <!-- Daily Summary -->
+            <div class="daily-summary">
+                <div class="stat-card-large">
+                    <div class="stat-value" id="dailyScans">0</div>
+                    <div class="stat-label">Today's Scans</div>
+                </div>
+                <div class="stat-card-large">
+                    <div class="stat-value" id="dailyAvgWaste">0%</div>
+                    <div class="stat-label">Average Waste</div>
+                </div>
+                <div class="stat-card-large">
+                    <div class="stat-value" id="dailyWeightLbs">0 lbs</div>
+                    <div class="stat-label">Food Wasted</div>
+                </div>
+                <div class="stat-card-large">
+                    <div class="stat-value" id="dailyCost">$0</div>
+                    <div class="stat-label">Cost Impact</div>
+                </div>
+            </div>
+
+            <!-- School-Wide Food Waste -->
+            <div class="school-waste-section">
+                <h3>Daily Food Waste by Item</h3>
+                <div id="schoolFoodWasteList" class="food-waste-bars"></div>
+            </div>
+
+            <!-- Insights -->
+            <div class="insights-section">
+                <h3>AI Insights & Recommendations</h3>
+                <div id="staffInsightsList" class="insights-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Food Item</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editFoodName">Food Name</label>
+                    <input type="text" id="editFoodName">
+                </div>
+                <div class="form-group">
+                    <label for="editWastePercentage">Waste Percentage</label>
+                    <input type="number" id="editWastePercentage" min="0" max="100">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelEditBtn">Cancel</button>
+                <button class="btn btn-primary" id="saveEditBtn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
